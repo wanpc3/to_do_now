@@ -34,7 +34,7 @@ class _TaskScreenState extends State<TaskScreen> {
             focusNode: focusNode,
             decoration: const InputDecoration(
               labelText: 'Task Title',
-              border: OutlineInputBorder(),
+              //border: OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -85,6 +85,59 @@ class _TaskScreenState extends State<TaskScreen> {
     }
   }
 
+  //Delete task
+  void _deleteTask(int index) async {
+    final task = _taskBox.getAt(index);
+    if (task == null) return;
+
+    final confirmDelete = await showDialog<bool>(
+      context: context, 
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Task'),
+          content: Text(
+            'Are you sure you want to delete the task:\n\n"${task.title}"?',
+          ),
+          actions: <Widget>[
+
+            //Cancel
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+
+            //Delete
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      }
+    );
+    
+    if (confirmDelete == true) {
+      _taskBox.deleteAt(index);
+      setState(() {});
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"${task.title}" deleted'),
+          backgroundColor: Colors.red[300],
+          duration: Duration(seconds: 3),
+          action: SnackBarAction(
+            label: 'Undo',
+            textColor: Colors.white,
+            onPressed: () {
+              _taskBox.add(task);
+              setState(() {});
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,6 +151,7 @@ class _TaskScreenState extends State<TaskScreen> {
           }
 
           return ListView.builder(
+            padding: const EdgeInsets.only(bottom: 80),
             itemCount: box.length,
             itemBuilder: (context, index) {
               final task = box.getAt(index);
@@ -115,13 +169,13 @@ class _TaskScreenState extends State<TaskScreen> {
                       SnackBar(
                         content: const Text('Task marked as completed'),
                         backgroundColor: Colors.green[400],
-                        duration: Duration(seconds: 2),
+                        duration: Duration(seconds: 1),
                       ),
                     );
                   }
                 },
                 onEdit: () => _editTask(index, task),
-                onDelete: () => _markAsCompleteTask(index),
+                onDelete: () => _deleteTask(index),
               );
             },
           );
@@ -150,7 +204,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   autofocus: true,
                   decoration: const InputDecoration(
                     labelText: 'Task Title',
-                    border: OutlineInputBorder(),
+                    //border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -161,6 +215,14 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
               ),
               actions: [
+
+                //Cancel textbutton
+                TextButton(
+                  onPressed: () => Navigator.pop(context), 
+                  child: const Text('Cancel'),
+                ),
+
+                //Add textbutton
                 TextButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {

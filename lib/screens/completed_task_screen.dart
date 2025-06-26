@@ -21,13 +21,15 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
       createdAt: completedTask.createdAt,
       lastUpdated: DateTime.now(),
     );
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Task restored'),
         backgroundColor: Colors.green[400],
-        duration: Duration(seconds: 2),
+        duration: Duration(seconds: 1),
       ),
     );
+
     _taskBox.add(task);
     _completedTaskBox.deleteAt(
       _completedTaskBox.values.toList().indexOf(completedTask)
@@ -37,8 +39,28 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
 
   //Delete completed task
   void _deleteTask(int index) {
+    final deletedTask = _completedTaskBox.getAt(index);
+    if (deletedTask == null) return;
+
     _completedTaskBox.deleteAt(index);
     setState(() {});
+
+    //Undo (If necessary)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Task has been deleted'),
+        backgroundColor: Colors.red[300],
+        duration: Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'Undo',
+          textColor: Colors.white,
+          onPressed: () {
+            _completedTaskBox.add(deletedTask);
+            setState(() {});
+          }
+        ),
+      ),
+    );
   }
 
   @override
