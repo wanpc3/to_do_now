@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/task.dart';
+import '../models/completed_task.dart';
 
-class TaskTile extends StatelessWidget {
-  final Task task;
-  final VoidCallback onToggle;
-  final VoidCallback onEdit;
+class CompletedTaskTile extends StatelessWidget {
+  final CompletedTask completedTask;
+  final VoidCallback onRestore;
   final VoidCallback onDelete;
 
-  TaskTile({
-    required this.task,
-    required this.onToggle,
-    required this.onEdit,
+  CompletedTaskTile({
+    required this.completedTask,
+    required this.onRestore,
     required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    final datePart = DateFormat('MMM d, yyyy').format(task.createdAt);
-    final timePart = DateFormat('hh:mm a').format(task.lastUpdated);
+    final datePart = DateFormat('MMM d, yyyy').format(completedTask.createdAt);
+    final timePart = DateFormat('hh:mm a').format(completedTask.lastUpdated);
 
     return Card(
       elevation: 3,
@@ -31,28 +29,24 @@ class TaskTile extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(
-          task.title,
+          completedTask.title,
           style: TextStyle(
-            decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+            decoration: completedTask.isCompleted ? TextDecoration.lineThrough : null,
           ),
         ),
         subtitle: Text(
           '$datePart • $timePart',
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
-        leading: Checkbox(
-          value: task.isCompleted,
-          onChanged: (_) => onToggle()
-        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit_outlined, color: Colors.blue),
-              onPressed: onEdit,
+              icon: const Icon(Icons.restore_outlined, color: Colors.green),
+              onPressed: onRestore,
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              icon: const Icon(Icons.delete_outline, color: Colors.red,),
               onPressed: onDelete,
             )
           ],

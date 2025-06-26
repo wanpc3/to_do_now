@@ -4,12 +4,21 @@ import 'screens/task_screen.dart';
 import 'screens/completed_task_screen.dart';
 import 'screens/settings_screen.dart';
 import 'models/task.dart';
+import 'models/completed_task.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+
   Hive.registerAdapter(TaskAdapter());
+  Hive.registerAdapter(CompletedTaskAdapter());
+
+  await Hive.deleteBoxFromDisk('tasks');
+  await Hive.deleteBoxFromDisk('completed_tasks');
+
   await Hive.openBox<Task>('tasks');
+  await Hive.openBox<CompletedTask>('completed_tasks');
+
   runApp(MyApp());
 }
 
@@ -75,7 +84,7 @@ class _ToDoNowState extends State<ToDoNow> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt_outlined), 
-            label: 'Home'
+            label: 'Tasks'
           ),
           
           BottomNavigationBarItem(

@@ -1,10 +1,10 @@
 import 'package:hive/hive.dart';
 
-part 'task.g.dart';
+part 'completed_task.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 
-class Task {
+class CompletedTask {
   @HiveField(0)
   String title;
 
@@ -17,10 +17,10 @@ class Task {
   @HiveField(3)
   bool isCompleted;
 
-  Task({
+  CompletedTask({
     required this.title,
     required this.createdAt,
     required this.lastUpdated,
-    this.isCompleted = false
+    this.isCompleted = true
   });
 }
