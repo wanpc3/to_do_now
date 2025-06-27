@@ -30,6 +30,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           //Notifications
+          /*
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) => ListTile(
@@ -42,6 +43,7 @@ class SettingsScreen extends StatelessWidget {
               childCount: 1,
             ),
           ),
+          */
 
           //Privacy Policy
           SliverList(

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'screens/task_screen.dart';
 import 'screens/completed_task_screen.dart';
 import 'screens/settings_screen.dart';
 import 'models/task.dart';
 import 'models/completed_task.dart';
+import 'screens/theme_provider.dart';
+import 'screens/sort_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,23 +22,39 @@ void main() async {
   await Hive.openBox<Task>('tasks');
   await Hive.openBox<CompletedTask>('completed_tasks');
 
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => SortProvider()),
+      ],
+      child: MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
-      themeMode: ThemeMode.system,
+      themeMode: themeProvider.themeMode,
       theme: ThemeData.light(),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blueGrey,
         scaffoldBackgroundColor: Colors.black,
         textTheme: TextTheme(
-        bodyMedium: TextStyle(fontSize: 16, color: Colors.white),
-        titleLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,
-        color: Colors.blueGrey),
+        bodyMedium: TextStyle(
+          fontSize: 16, 
+          color: Colors.white
+        ),
+        titleLarge: TextStyle(
+          fontSize: 24, 
+          fontWeight: FontWeight.bold,
+          color: Colors.blueGrey),
         ),
       ),
       debugShowCheckedModeBanner: false,

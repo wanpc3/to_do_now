@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
-import 'package:to_do_now/models/completed_task.dart';
+import 'package:provider/provider.dart';
+import '/models/completed_task.dart';
+import '../screens/sort_provider.dart';
 import '../widgets/task_tile.dart';
 import '../models/task.dart';
 
@@ -14,14 +16,12 @@ class _TaskScreenState extends State<TaskScreen> {
   final _taskBox = Hive.box<Task>('tasks');
   final _completedTaskBox = Hive.box<CompletedTask>('completed_tasks');
 
-  void _editTask(int index, Task task) {
+  void _editTask(dynamic key, Task task) {
     final editController = TextEditingController(text: task.title);
     final _formKey = GlobalKey<FormState>();
     final focusNode = FocusNode();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode.requestFocus();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => focusNode.requestFocus());
 
     showDialog(
       context: context,
@@ -32,23 +32,15 @@ class _TaskScreenState extends State<TaskScreen> {
           child: TextFormField(
             controller: editController,
             focusNode: focusNode,
-            decoration: const InputDecoration(
-              labelText: 'Task Title',
-              //border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Task Title'),
             validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'This field cannot be emptied';
-              }
+              if (value == null || value.trim().isEmpty) return 'This field cannot be empty';
               return null;
             },
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
@@ -58,7 +50,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   lastUpdated: DateTime.now(),
                   isCompleted: task.isCompleted,
                 );
-                _taskBox.putAt(index, updatedTask);
+                _taskBox.put(key, updatedTask);
                 Navigator.pop(context);
               }
             },
@@ -69,55 +61,33 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 
-  //Mark task as complete
-  void _markAsCompleteTask(int index) {
-    final task = _taskBox.getAt(index);
-    if (task != null) {
-      final completedTask = CompletedTask(
-        title: task.title,
-        createdAt: task.createdAt,
-        lastUpdated: DateTime.now(),
-        isCompleted: true,
-      );
-      _completedTaskBox.add(completedTask);
-      _taskBox.deleteAt(index);
-      setState(() {});
-    }
+  void _markAsCompleteTask(dynamic key, Task task) {
+    final completedTask = CompletedTask(
+      title: task.title,
+      createdAt: task.createdAt,
+      lastUpdated: DateTime.now(),
+      isCompleted: true,
+    );
+    _completedTaskBox.add(completedTask);
+    _taskBox.delete(key);
+    setState(() {});
   }
 
-  //Delete task
-  void _deleteTask(int index) async {
-    final task = _taskBox.getAt(index);
-    if (task == null) return;
-
+  void _deleteTask(dynamic key, Task task) async {
     final confirmDelete = await showDialog<bool>(
-      context: context, 
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Task'),
-          content: Text(
-            'Are you sure you want to delete the task:\n\n"${task.title}"?',
-          ),
-          actions: <Widget>[
-
-            //Cancel
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-
-            //Delete
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      }
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Task'),
+        content: Text('Are you sure you want to delete:\n\n"${task.title}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+        ],
+      ),
     );
-    
+
     if (confirmDelete == true) {
-      _taskBox.deleteAt(index);
+      _taskBox.delete(key);
       setState(() {});
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +99,7 @@ class _TaskScreenState extends State<TaskScreen> {
             label: 'Undo',
             textColor: Colors.white,
             onPressed: () {
-              _taskBox.add(task);
+              _taskBox.put(key, task);
               setState(() {});
             },
           ),
@@ -140,31 +110,38 @@ class _TaskScreenState extends State<TaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sortProvider = Provider.of<SortProvider>(context);
+
     return Scaffold(
       body: ValueListenableBuilder(
         valueListenable: _taskBox.listenable(),
         builder: (context, Box<Task> box, _) {
-          if (box.isEmpty) {
-            return const Center(
-              child: const Text('No tasks yet.')
-            );
+          final List<MapEntry<dynamic, Task>> taskEntries = box.toMap().entries.toList();
+
+          //Sorting
+          switch (sortProvider.sortMode) {
+            case 'Title (A-Z)':
+              taskEntries.sort((a, b) => a.value.title.toLowerCase().compareTo(b.value.title.toLowerCase()));
+              break;
+            case 'Last Updated':
+              taskEntries.sort((a, b) => b.value.lastUpdated.compareTo(a.value.lastUpdated));
+              break;
+            default:
+              taskEntries.sort((a, b) => b.value.createdAt.compareTo(a.value.createdAt));
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.only(bottom: 80),
-            itemCount: box.length,
+            itemCount: taskEntries.length,
             itemBuilder: (context, index) {
-              final task = box.getAt(index);
-              if (task == null) return const SizedBox();
+              final entry = taskEntries[index];
+              final key = entry.key;
+              final task = entry.value;
 
               return TaskTile(
                 task: task,
                 onToggle: () {
-                  final task = _taskBox.getAt(index);
-                  if (task != null && !task.isCompleted) {
-                    
-                    _markAsCompleteTask(index);
-
+                  if (!task.isCompleted) {
+                    _markAsCompleteTask(key, task);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: const Text('Task marked as completed'),
@@ -174,8 +151,8 @@ class _TaskScreenState extends State<TaskScreen> {
                     );
                   }
                 },
-                onEdit: () => _editTask(index, task),
-                onDelete: () => _deleteTask(index),
+                onEdit: () => _editTask(key, task),
+                onDelete: () => _deleteTask(key, task),
               );
             },
           );
@@ -188,9 +165,7 @@ class _TaskScreenState extends State<TaskScreen> {
           final focusNode = FocusNode();
           final controller = TextEditingController();
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            focusNode.requestFocus();
-          });
+          WidgetsBinding.instance.addPostFrameCallback((_) => focusNode.requestFocus());
 
           showDialog(
             context: context,
@@ -201,28 +176,15 @@ class _TaskScreenState extends State<TaskScreen> {
                 child: TextFormField(
                   controller: controller,
                   focusNode: focusNode,
-                  autofocus: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Task Title',
-                    //border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Task Title'),
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'This field cannot be emptied';
-                    }
+                    if (value == null || value.trim().isEmpty) return 'This field cannot be empty';
                     return null;
                   },
                 ),
               ),
               actions: [
-
-                //Cancel textbutton
-                TextButton(
-                  onPressed: () => Navigator.pop(context), 
-                  child: const Text('Cancel'),
-                ),
-
-                //Add textbutton
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 TextButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
@@ -231,7 +193,8 @@ class _TaskScreenState extends State<TaskScreen> {
                         createdAt: DateTime.now(),
                         lastUpdated: DateTime.now(),
                       );
-
+                      _taskBox.add(task);
+                      Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: const Text('New task has been added'),
@@ -239,9 +202,6 @@ class _TaskScreenState extends State<TaskScreen> {
                           duration: Duration(seconds: 2),
                         ),
                       );
-
-                      _taskBox.add(task);
-                      Navigator.pop(context);
                     }
                   },
                   child: const Text("Add"),

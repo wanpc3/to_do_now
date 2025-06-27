@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
+import '../screens/sort_provider.dart';
 import '../widgets/completed_task_tile.dart';
 import '../models/completed_task.dart';
 import '../models/task.dart';
@@ -65,30 +67,47 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sortProvider = Provider.of<SortProvider>(context);
+
     return Scaffold(
       body: ValueListenableBuilder(
         valueListenable: _completedTaskBox.listenable(), 
         builder: (context, Box<CompletedTask> box, _) {
-          if (box.isEmpty) {
+          final List<MapEntry<dynamic, CompletedTask>> completedTaskEntries = box.toMap().entries.toList();
+
+          // Apply sorting
+          switch (sortProvider.sortMode) {
+            case 'Title (A-Z)':
+              completedTaskEntries.sort((a, b) => a.value.title.toLowerCase().compareTo(b.value.title.toLowerCase()));
+              break;
+            case 'Last Updated':
+              completedTaskEntries.sort((a, b) => b.value.lastUpdated.compareTo(a.value.lastUpdated));
+              break;
+            default:
+              completedTaskEntries.sort((a, b) => b.value.createdAt.compareTo(a.value.createdAt));
+          }
+
+          if (completedTaskEntries.isEmpty) {
             return const Center(
-              child: const Text('No completed tasks yet'),
+              child: Text('No completed tasks yet'),
             );
           }
 
           return ListView.builder(
-            itemCount: box.length,
+            itemCount: completedTaskEntries.length,
             itemBuilder: (context, index) {
-              final completedTask = box.getAt(index);
-              if (completedTask == null) return const SizedBox();
+              final entry = completedTaskEntries[index];
+              final key = entry.key;
+              final task = entry.value;
 
               return CompletedTaskTile(
-                completedTask: completedTask, 
-                onRestore: () => _restoreTask(completedTask), 
-                onDelete: () => _deleteTask(index),
+                completedTask: task,
+                onRestore: () => _restoreTask(task),
+                onDelete: () => _deleteTask(key),
               );
-            }
+            },
           );
-        }
+        },
       ),
     );
   }
