@@ -21,6 +21,7 @@ class TaskTile extends StatelessWidget {
     final timePart = DateFormat('hh:mm a').format(task.lastUpdated);
 
     return Card(
+      color: Theme.of(context).cardColor,
       elevation: 3,
       margin: const EdgeInsets.symmetric(
         horizontal: 15,

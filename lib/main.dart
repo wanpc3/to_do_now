@@ -16,8 +16,8 @@ void main() async {
   Hive.registerAdapter(TaskAdapter());
   Hive.registerAdapter(CompletedTaskAdapter());
 
-  await Hive.deleteBoxFromDisk('tasks');
-  await Hive.deleteBoxFromDisk('completed_tasks');
+  //await Hive.deleteBoxFromDisk('tasks');
+  //await Hive.deleteBoxFromDisk('completed_tasks');
 
   await Hive.openBox<Task>('tasks');
   await Hive.openBox<CompletedTask>('completed_tasks');
@@ -36,29 +36,30 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
-      themeMode: themeProvider.themeMode,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.blueGrey,
-        scaffoldBackgroundColor: Colors.black,
-        textTheme: TextTheme(
-        bodyMedium: TextStyle(
-          fontSize: 16, 
-          color: Colors.white
-        ),
-        titleLarge: TextStyle(
-          fontSize: 24, 
-          fontWeight: FontWeight.bold,
-          color: Colors.blueGrey),
-        ),
-      ),
       debugShowCheckedModeBanner: false,
       title: 'To-Do List',
+      theme: ThemeData.light().copyWith(
+        scaffoldBackgroundColor: themeProvider.useCustomTheme
+            ? themeProvider.backgroundColor
+            : null,
+        appBarTheme: AppBarTheme(
+          backgroundColor: themeProvider.useCustomTheme
+              ? themeProvider.appBarColor
+              : Colors.blue,
+        ),
+        cardColor: themeProvider.useCustomTheme
+            ? themeProvider.cardColor
+            : null,
+      ),
+      darkTheme: ThemeData.dark(),
+      themeMode: themeProvider.useCustomTheme
+          ? ThemeMode.light
+          : themeProvider.isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
       home: ToDoNow(),
     );
   }
@@ -88,13 +89,15 @@ class _ToDoNowState extends State<ToDoNow> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'To-Do Now',
-          style: TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
+        title: Center(
+          child: const Text(
+            'To-Do Now',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
+        )
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+import '../screens/theme_provider.dart';
 import '../screens/sort_provider.dart';
 import '../widgets/completed_task_tile.dart';
 import '../models/completed_task.dart';
@@ -24,13 +25,15 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
       lastUpdated: DateTime.now(),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Task restored'),
-        backgroundColor: Colors.green[400],
-        duration: Duration(seconds: 1),
-      ),
-    );
+    if (Provider.of<ThemeProvider>(context, listen: false).showAlerts) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Task restored'),
+          backgroundColor: Colors.green[400],
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
 
     _taskBox.add(task);
     _completedTaskBox.deleteAt(
@@ -40,29 +43,32 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
   }
 
   //Delete completed task
-  void _deleteTask(int index) {
-    final deletedTask = _completedTaskBox.getAt(index);
-    if (deletedTask == null) return;
-
-    _completedTaskBox.deleteAt(index);
+  void _deleteTask(dynamic key, CompletedTask deletedTask) {
+    _completedTaskBox.delete(key);
     setState(() {});
 
-    //Undo (If necessary)
+    bool undoClicked = false;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Task has been deleted'),
         backgroundColor: Colors.red[300],
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 4),
         action: SnackBarAction(
           label: 'Undo',
           textColor: Colors.white,
           onPressed: () {
-            _completedTaskBox.add(deletedTask);
+            undoClicked = true;
+            _completedTaskBox.put(key, deletedTask);
             setState(() {});
-          }
+          },
         ),
       ),
-    );
+    ).closed.then((_) {
+      if (!undoClicked) {
+        // Optional: final confirmation or logging
+      }
+    });
   }
 
   @override
@@ -103,7 +109,7 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
               return CompletedTaskTile(
                 completedTask: task,
                 onRestore: () => _restoreTask(task),
-                onDelete: () => _deleteTask(key),
+                onDelete: () => _deleteTask(key, task),
               );
             },
           );

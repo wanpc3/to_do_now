@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+import '../screens/theme_provider.dart';
 import '/models/completed_task.dart';
 import '../screens/sort_provider.dart';
 import '../widgets/task_tile.dart';
@@ -52,6 +53,16 @@ class _TaskScreenState extends State<TaskScreen> {
                 );
                 _taskBox.put(key, updatedTask);
                 Navigator.pop(context);
+
+                if (Provider.of<ThemeProvider>(context, listen: false).showAlerts) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Task Updated'),
+                      backgroundColor: Colors.green[400],
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
               }
             },
             child: const Text('Update'),
@@ -90,21 +101,23 @@ class _TaskScreenState extends State<TaskScreen> {
       _taskBox.delete(key);
       setState(() {});
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('"${task.title}" deleted'),
-          backgroundColor: Colors.red[300],
-          duration: Duration(seconds: 3),
-          action: SnackBarAction(
-            label: 'Undo',
-            textColor: Colors.white,
-            onPressed: () {
-              _taskBox.put(key, task);
-              setState(() {});
-            },
+      if (Provider.of<ThemeProvider>(context, listen: false).showAlerts) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('"${task.title}" deleted'),
+            backgroundColor: Colors.red[300],
+            duration: Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'Undo',
+              textColor: Colors.white,
+              onPressed: () {
+                _taskBox.put(key, task);
+                setState(() {});
+              },
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -142,13 +155,16 @@ class _TaskScreenState extends State<TaskScreen> {
                 onToggle: () {
                   if (!task.isCompleted) {
                     _markAsCompleteTask(key, task);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Task marked as completed'),
-                        backgroundColor: Colors.green[400],
-                        duration: Duration(seconds: 1),
-                      ),
-                    );
+                    
+                    if (Provider.of<ThemeProvider>(context, listen: false).showAlerts) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Task marked as completed'),
+                          backgroundColor: Colors.green[400],
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    }
                   }
                 },
                 onEdit: () => _editTask(key, task),
@@ -195,13 +211,15 @@ class _TaskScreenState extends State<TaskScreen> {
                       );
                       _taskBox.add(task);
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('New task has been added'),
-                          backgroundColor: Colors.green[400],
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                      if (Provider.of<ThemeProvider>(context, listen: false).showAlerts) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('New task added'),
+                            backgroundColor: Colors.green[400],
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     }
                   },
                   child: const Text("Add"),
