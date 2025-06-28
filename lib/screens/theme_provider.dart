@@ -18,6 +18,8 @@ class ThemeProvider extends ChangeNotifier {
   Color get backgroundColor => _backgroundColor;
   Color get cardColor => _cardColor;
 
+  final SharedPreferences prefs;
+
   static final List<Color> appBarColors = [
     Colors.red,
     Colors.amber,
@@ -82,7 +84,7 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  ThemeProvider() {
+  ThemeProvider(this.prefs) {
     _loadSettings();
   }
   

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/task_screen.dart';
 import 'screens/completed_task_screen.dart';
 import 'screens/settings_screen.dart';
@@ -11,6 +12,7 @@ import 'screens/sort_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
   await Hive.initFlutter();
 
   Hive.registerAdapter(TaskAdapter());
@@ -25,7 +27,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
         ChangeNotifierProvider(create: (_) => SortProvider()),
       ],
       child: MyApp(),
