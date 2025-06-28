@@ -5,6 +5,7 @@ class ThemeProvider extends ChangeNotifier {
   bool _useCustomTheme = false;
   bool _showAlerts = true;
   Color _appBarColor = Colors.blue;
+  Color _bottomNavigationColor = Colors.white;
   Color _backgroundColor = Colors.white;
   Color _cardColor = Colors.white;
 
@@ -12,6 +13,7 @@ class ThemeProvider extends ChangeNotifier {
   bool get useCustomTheme => _useCustomTheme;
   bool get showAlerts => _showAlerts;
   Color get appBarColor => _appBarColor;
+  Color get bottomNavigationColor => _bottomNavigationColor;
   Color get backgroundColor => _backgroundColor;
   Color get cardColor => _cardColor;
 
@@ -39,6 +41,12 @@ class ThemeProvider extends ChangeNotifier {
   //Background's Color
   void setBackgroundColor(Color color) {
     _backgroundColor = color;
+    notifyListeners();
+  }
+
+  //Bottom Navigation's Color
+  void setBottomNavigationColor(Color color) {
+    _bottomNavigationColor = color;
     notifyListeners();
   }
 

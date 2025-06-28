@@ -163,6 +163,63 @@ class Appearance extends StatelessWidget {
               ),
             ),
 
+            //Bottom Navigation's Color
+            if (themeProvider.useCustomTheme)
+            SliverToBoxAdapter(
+              child: ListTile(
+                leading: Icon(Icons.color_lens_outlined),
+                title: const Text("Bottom Navigation's Color"),
+                trailing: DropdownButton<Color>(
+                  value: themeProvider.bottomNavigationColor,
+                  underline: SizedBox(),
+                  items: [
+
+                    //Red
+                    DropdownMenuItem(
+                      value: Colors.red[400],
+                      child: const Text("Red"),
+                    ),
+
+                    //Yellow
+                    DropdownMenuItem(
+                      value: Colors.amber[400],
+                      child: const Text("Yellow"),
+                    ),
+
+                    //Blue
+                    DropdownMenuItem(
+                      value: Colors.blue[400],
+                      child: const Text("Blue"),
+                    ),
+
+                    //Green
+                    DropdownMenuItem(
+                      value: Colors.green[400],
+                      child: const Text("Green"),
+                    ),
+
+                    //Purple
+                    DropdownMenuItem(
+                      value: Colors.purple[400],
+                      child: const Text("Purple"),
+                    ),
+
+                    //White
+                    DropdownMenuItem(
+                      value: Colors.white,
+                      child: const Text('White'),
+                    ),
+
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      themeProvider.setBottomNavigationColor(value);
+                    }
+                  },
+                ),
+              ),
+            ),
+
 
             //Background's Color
             if (themeProvider.useCustomTheme)

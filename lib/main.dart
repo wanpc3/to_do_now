@@ -87,6 +87,8 @@ class _ToDoNowState extends State<ToDoNow> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -102,6 +104,13 @@ class _ToDoNowState extends State<ToDoNow> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
+        backgroundColor: themeProvider.useCustomTheme
+        ? themeProvider.bottomNavigationColor
+        : Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).canvasColor,
+        selectedItemColor: themeProvider.useCustomTheme
+            ? Colors.black
+            : Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(
