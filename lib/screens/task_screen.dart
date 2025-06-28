@@ -14,8 +14,15 @@ class TaskScreen extends StatefulWidget {
 }
 
 class _TaskScreenState extends State<TaskScreen> {
-  final _taskBox = Hive.box<Task>('tasks');
-  final _completedTaskBox = Hive.box<CompletedTask>('completed_tasks');
+  late final Box<Task> _taskBox;
+  late final Box<CompletedTask> _completedTaskBox;
+
+  @override
+  void initState() {
+    super.initState();
+    _taskBox = Hive.box<Task>('tasks');
+    _completedTaskBox = Hive.box<CompletedTask>('completed_tasks');
+  }
 
   void _editTask(dynamic key, Task task) {
     final editController = TextEditingController(text: task.title);

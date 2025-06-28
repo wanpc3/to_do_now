@@ -9,6 +9,7 @@ import 'models/task.dart';
 import 'models/completed_task.dart';
 import 'screens/theme_provider.dart';
 import 'screens/sort_provider.dart';
+import 'info.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,15 +94,24 @@ class _ToDoNowState extends State<ToDoNow> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: const Text(
-            'To-Do Now',
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-            ),
+        centerTitle: true,
+        title: const Text(
+          'To-Do Now',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Info()
+                ),
+              );
+            },
           ),
-        )
+        ],
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
