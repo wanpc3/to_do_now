@@ -108,9 +108,11 @@ class _ToDoNowState extends State<ToDoNow> {
         ? themeProvider.bottomNavigationColor
         : Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).canvasColor,
         selectedItemColor: themeProvider.useCustomTheme
-            ? Colors.black
-            : Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey,
+        ? (themeProvider.isColorDark(themeProvider.bottomNavigationColor) ? Colors.white : Colors.black)
+        : Theme.of(context).colorScheme.primary,
+        unselectedItemColor: themeProvider.useCustomTheme
+        ? (themeProvider.isColorDark(themeProvider.bottomNavigationColor) ? Colors.white70 : Colors.black54)
+        : Colors.grey,
         onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(

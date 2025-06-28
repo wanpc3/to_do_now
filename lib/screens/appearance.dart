@@ -4,11 +4,26 @@ import 'sort_provider.dart';
 import 'theme_provider.dart';
 
 class Appearance extends StatelessWidget {
+  const Appearance({super.key});
+
+  String _getColorName(Color color) {
+    if (color == Colors.red || color == Colors.red[400]) return "Red";
+    if (color == Colors.red[100]) return "Light Red";
+    if (color == Colors.amber || color == Colors.amber[400]) return "Yellow";
+    if (color == Colors.yellow[100]) return "Light Yellow";
+    if (color == Colors.blue || color == Colors.blue[400]) return "Blue";
+    if (color == Colors.blue[100]) return "Light Blue";
+    if (color == Colors.green || color == Colors.green[400]) return "Green";
+    if (color == Colors.green[100]) return "Light Green";
+    if (color == Colors.purple || color == Colors.purple[400]) return "Purple";
+    if (color == Colors.purple[100]) return "Light Purple";
+    if (color == Colors.white) return "White";
+    return "Custom";
+  }
+
   @override
   Widget build(BuildContext context) {
-
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.isDarkMode;
     final sortProvider = Provider.of<SortProvider>(context);
 
     return Scaffold(
@@ -17,325 +32,138 @@ class Appearance extends StatelessWidget {
       ),
       body: CustomScrollView(
         slivers: [
-
-          //Sort Card
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return ListTile(
-                  leading: Icon(Icons.sort),
-                  title: const Text('Sort by'),
-                  trailing: DropdownButton<String>(
-                    value: sortProvider.sortMode,
-                    underline: SizedBox(),
-                    items: [
-                      DropdownMenuItem(
-                        value: 'Recently Added',
-                        child: const Text('Recently Added'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Title (A-Z)',
-                        child: const Text('Title (A-Z)'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Last Updated',
-                        child: const Text('Last Updated'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        sortProvider.setSortMode(value);
-                      }
-                    },
-                  ),
-                );
-              },
-              childCount: 1,
-            ),
-          ),
+            delegate: SliverChildListDelegate([
+              ListTile(
+                leading: const Icon(Icons.sort),
+                title: const Text('Sort by'),
+                trailing: DropdownButton<String>(
+                  value: sortProvider.sortMode,
+                  underline: const SizedBox(),
+                  items: const [
+                    DropdownMenuItem(value: 'Recently Added', child: Text('Recently Added')),
+                    DropdownMenuItem(value: 'Title (A-Z)', child: Text('Title (A-Z)')),
+                    DropdownMenuItem(value: 'Last Updated', child: Text('Last Updated')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) sortProvider.setSortMode(value);
+                  },
+                ),
+              ),
 
-          //Enable/Disable Alerts
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => ListTile(
-                leading: Icon(Icons.notifications_active_outlined),
+              //Show Alert Message
+              ListTile(
+                leading: const Icon(Icons.notifications_active_outlined),
                 title: const Text('Show Alert Messages'),
                 subtitle: const Text('Control whether the app shows brief alerts when you perform actions.'),
                 trailing: Switch(
                   value: themeProvider.showAlerts,
-                  onChanged: (value) {
-                    themeProvider.toggleAlerts(value);
-                  },
+                  onChanged: themeProvider.toggleAlerts,
                 ),
               ),
-              childCount: 1,
-            ),
-          ),
 
-          //Dark Mode
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => ListTile(
-                leading: Icon(Icons.dark_mode_outlined),
+              //Dark Mode
+              ListTile(
+                leading: const Icon(Icons.dark_mode_outlined),
                 title: const Text('Dark Mode'),
                 trailing: Switch(
-                  value: isDarkMode,
-                  onChanged: (value) {
-                    themeProvider.toggleDarkMode(value);
-                  },
+                  value: themeProvider.isDarkMode,
+                  onChanged: themeProvider.toggleDarkMode,
                 ),
-                onTap: () {
-                  themeProvider.toggleDarkMode(!isDarkMode);
-                },
+                onTap: () => themeProvider.toggleDarkMode(!themeProvider.isDarkMode),
               ),
-              childCount: 1,
-            ),
+
+              //Custom Theme
+              ListTile(
+                leading: const Icon(Icons.color_lens_outlined),
+                title: const Text('Custom Theme'),
+                trailing: Switch(
+                  value: themeProvider.useCustomTheme,
+                  onChanged: themeProvider.toggleCustomTheme,
+                ),
+              ),
+            ]),
           ),
 
-          //Custom Theme Toggle
-          SliverToBoxAdapter(
-            child: ListTile(
-              leading: Icon(Icons.color_lens_outlined),
-              title: const Text('Custom Theme'),
-              trailing: Switch(
-                value: themeProvider.useCustomTheme,
-                onChanged: (value) {
-                  themeProvider.toggleCustomTheme(value);
-                },
-              ),
-            ),
-          ),
-
-            //Appbar's Color
-            if (themeProvider.useCustomTheme)
-            SliverToBoxAdapter(
-              child: ListTile(
-                leading: Icon(Icons.format_color_fill_outlined),
-                title: const Text("Appbar's Color"),
-                trailing: DropdownButton<Color>(
-                  value: themeProvider.appBarColor,
-                  underline: SizedBox(),
-                  items: [
-
-                    //Red
-                    DropdownMenuItem(
-                      value: Colors.red,
-                      child: const Text("Red"),
-                    ),
-
-                    //Yellow
-                    DropdownMenuItem(
-                      value: Colors.amber,
-                      child: const Text("Yellow"),
-                    ),
-
-                    //Blue
-                    DropdownMenuItem(
-                      value: Colors.blue,
-                      child: const Text("Blue"),
-                    ),
-
-                    //Green
-                    DropdownMenuItem(
-                      value: Colors.green,
-                      child: const Text("Green"),
-                    ),
-
-                    //Purple
-                    DropdownMenuItem(
-                      value: Colors.purple,
-                      child: const Text("Purple"),
-                    ),
-
-                    //White
-                    DropdownMenuItem(
-                      value: Colors.white,
-                      child: const Text('White'),
-                    ),
-
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      themeProvider.setAppBarColor(value);
-                    }
-                  },
-                ),
-              ),
-            ),
-
-            //Bottom Navigation's Color
-            if (themeProvider.useCustomTheme)
-            SliverToBoxAdapter(
-              child: ListTile(
-                leading: Icon(Icons.color_lens_outlined),
-                title: const Text("Bottom Navigation's Color"),
-                trailing: DropdownButton<Color>(
-                  value: themeProvider.bottomNavigationColor,
-                  underline: SizedBox(),
-                  items: [
-
-                    //Red
-                    DropdownMenuItem(
-                      value: Colors.red[400],
-                      child: const Text("Red"),
-                    ),
-
-                    //Yellow
-                    DropdownMenuItem(
-                      value: Colors.amber[400],
-                      child: const Text("Yellow"),
-                    ),
-
-                    //Blue
-                    DropdownMenuItem(
-                      value: Colors.blue[400],
-                      child: const Text("Blue"),
-                    ),
-
-                    //Green
-                    DropdownMenuItem(
-                      value: Colors.green[400],
-                      child: const Text("Green"),
-                    ),
-
-                    //Purple
-                    DropdownMenuItem(
-                      value: Colors.purple[400],
-                      child: const Text("Purple"),
-                    ),
-
-                    //White
-                    DropdownMenuItem(
-                      value: Colors.white,
-                      child: const Text('White'),
-                    ),
-
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      themeProvider.setBottomNavigationColor(value);
-                    }
-                  },
-                ),
-              ),
-            ),
-
-
-            //Background's Color
-            if (themeProvider.useCustomTheme)
-            SliverToBoxAdapter(
-              child: ListTile(
-                leading: Icon(Icons.border_color_outlined),
-                title: const Text("Background's Color"),
-                trailing: DropdownButton<Color>(
-                  value: themeProvider.backgroundColor,
-                  underline: SizedBox(),
-                  items: [
-
-                    //Red
-                    DropdownMenuItem(
-                      value: Colors.red[100],
-                      child: const Text("Red"),
-                    ),
-
-                    //Yellow
-                    DropdownMenuItem(
-                      value: Colors.yellow[100],
-                      child: const Text("Yellow"),
-                    ),
-
-                    //Blue
-                    DropdownMenuItem(
-                      value: Colors.blue[100],
-                      child: const Text("Blue"),
-                    ),
-
-                    //Green
-                    DropdownMenuItem(
-                      value: Colors.green[100],
-                      child: const Text("Green"),
-                    ),
-
-                    //Purple
-                    DropdownMenuItem(
-                      value: Colors.purple[100],
-                      child: const Text("Purple"),
-                    ),
-
-                    //White
-                    DropdownMenuItem(
-                      value: Colors.white,
-                      child: const Text('White'),
-                    ),
-
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      themeProvider.setBackgroundColor(value);
-                    }
-                  },
-                ),
-              ),
-            ),
-
-          //Card's background color
           if (themeProvider.useCustomTheme)
-            SliverToBoxAdapter(
-              child: ListTile(
-                leading: Icon(Icons.crop_square_outlined),
-                title: const Text("Card's Color"),
-                trailing: DropdownButton<Color>(
-                  value: themeProvider.cardColor,
-                  underline: SizedBox(),
-                  items: [
+            ...[
 
-                    //Light Red
-                    DropdownMenuItem(
-                      value: Colors.red[100],
-                      child: const Text("Red"),
-                    ),
-
-                    //Light Yellow
-                    DropdownMenuItem(
-                      value: Colors.yellow[100],
-                      child: const Text("Yellow"),
-                    ),
-
-                    //Light Blue
-                    DropdownMenuItem(
-                      value: Colors.blue[100],
-                      child: const Text("Blue"),
-                    ),
-
-                    //Light Green
-                    DropdownMenuItem(
-                      value: Colors.green[100],
-                      child: const Text("Green"),
-                    ),
-
-                    //Light Purple
-                    DropdownMenuItem(
-                      value: Colors.purple[100],
-                      child: const Text("Purple"),
-                    ),
-
-                    //White
-                    DropdownMenuItem(
-                      value: Colors.white,
-                      child: const Text('White'),
-                    ),
-
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      themeProvider.setCardColor(value);
-                    }
-                  },
-                ),
+              //Appbar's Color
+              _buildColorSelector(
+                context,
+                icon: Icons.format_paint_outlined,
+                label: "Appbar's Color",
+                value: themeProvider.appBarColor,
+                options: ThemeProvider.appBarColors,
+                onChanged: themeProvider.setAppBarColor,
               ),
-            ),
 
+              //Bottom Navigation's Color
+              _buildColorSelector(
+                context,
+                icon: Icons.view_sidebar_outlined,
+                label: "Bottom Navigation's Color",
+                value: themeProvider.bottomNavigationColor,
+                options: ThemeProvider.componentColors,
+                onChanged: themeProvider.setBottomNavigationColor,
+              ),
+
+              //Background's Color
+              _buildColorSelector(
+                context,
+                icon: Icons.wallpaper_outlined,
+                label: "Background's Color",
+                value: themeProvider.backgroundColor,
+                options: ThemeProvider.backgroundColors,
+                onChanged: themeProvider.setBackgroundColor,
+              ),
+
+              //Card's Color
+              _buildColorSelector(
+                context,
+                icon: Icons.rectangle_outlined,
+                label: "Card's Color",
+                value: themeProvider.cardColor,
+                options: ThemeProvider.backgroundColors,
+                onChanged: themeProvider.setCardColor,
+              ),
+            ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildColorSelector(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color value,
+    required List<Color> options,
+    required ValueChanged<Color> onChanged,
+  }) {
+    return SliverToBoxAdapter(
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(label),
+        trailing: DropdownButton<Color>(
+          value: options.contains(value) ? value : null,
+          underline: const SizedBox(),
+          items: options.map((color) {
+            return DropdownMenuItem(
+              value: color,
+              child: Row(
+                children: [
+                  Container(width: 20, height: 20, color: color),
+                  const SizedBox(width: 8),
+                  Text(_getColorName(color)),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) onChanged(value);
+          },
+        ),
       ),
     );
   }
