@@ -1,4 +1,4 @@
-package com.example.to_do_now
+package com.ilhanidriss.to_do_now
 
 import io.flutter.embedding.android.FlutterActivity
 
