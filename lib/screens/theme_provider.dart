@@ -62,7 +62,7 @@ class ThemeProvider extends ChangeNotifier {
     _showAlerts = prefs.getBool('showAlerts') ?? true;
 
     _appBarColor = _matchDropdownColor(
-      Color(prefs.getInt('appBarColor') ?? Colors.blue.value),
+      Color(prefs.getInt('appBarColor') ?? Colors.amber.value),
       appBarColors,
     );
     
