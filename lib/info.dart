@@ -45,7 +45,11 @@ class Info extends StatelessWidget {
                   Text('• Task sorting and completion  '),
                   Text('• Customizable themes'),
                   Text('• Easy task management'),
-                  Text('• Local device storage only'),
+                  SizedBox(height: 16),
+                  Text(
+                    '*Remember: This app stores all data on local device storage only.',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ],
               ),
             ),

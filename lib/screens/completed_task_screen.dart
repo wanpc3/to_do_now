@@ -66,7 +66,7 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
       ),
     ).closed.then((_) {
       if (!undoClicked) {
-        // Optional: final confirmation or logging
+        
       }
     });
   }
@@ -99,22 +99,88 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
             );
           }
 
-          return ListView.builder(
-            itemCount: completedTaskEntries.length,
-            itemBuilder: (context, index) {
-              final entry = completedTaskEntries[index];
-              final key = entry.key;
-              final task = entry.value;
+          return Column(
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12, right: 16),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[300],
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      _showClearAllDialog();
+                    },
+                    child: const Text('Clear All'),
+                  ),
+                ),
+              ),
 
-              return CompletedTaskTile(
-                completedTask: task,
-                onRestore: () => _restoreTask(task),
-                onDelete: () => _deleteTask(key, task),
-              );
-            },
+              Expanded(
+                child: ListView.builder(
+                  itemCount: completedTaskEntries.length,
+                  itemBuilder: (context, index) {
+                    final entry = completedTaskEntries[index];
+                    final key = entry.key;
+                    final task = entry.value;
+
+                    return CompletedTaskTile(
+                      completedTask: task,
+                      onRestore: () => _restoreTask(task),
+                      onDelete: () => _deleteTask(key, task),
+                    );
+                  },
+                ),
+              ),
+              ],
           );
         },
       ),
+    );
+  }
+
+  void _showClearAllDialog() {
+    showDialog(
+      context: context, 
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Clear All Completed Tasks'),
+          content: const Text('Are you sure you want to delete all completed tasks? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancle'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[400],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Delete All'),
+              onPressed: () {
+                _completedTaskBox.clear();
+                Navigator.of(context).pop();
+
+                if (Provider.of<ThemeProvider>(context, listen: false).showAlerts) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('All completed tasks deleted'),
+                      backgroundColor: Colors.red[300],
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+
+                setState(() {});
+              },
+            )
+          ],
+        );
+      }
     );
   }
 }

@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor: themeProvider.useCustomTheme
               ? themeProvider.appBarColor
-              : Colors.blue,
+              : Colors.amber,
         ),
         cardColor: themeProvider.useCustomTheme
             ? themeProvider.cardColor
@@ -76,6 +76,12 @@ class ToDoNow extends StatefulWidget {
 class _ToDoNowState extends State<ToDoNow> {
   int _selectedIndex = 0;
 
+  static final List<String> _appBarTitle = [
+    'To-Do Now',
+    'Completed Task',
+    'Settings',
+  ];
+
   static final List<Widget> _screens = [
     TaskScreen(),
     CompletedTaskScreen(),
@@ -95,8 +101,8 @@ class _ToDoNowState extends State<ToDoNow> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
-          'To-Do Now',
+        title: Text(
+          _appBarTitle[_selectedIndex],
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -128,7 +134,7 @@ class _ToDoNowState extends State<ToDoNow> {
         onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt_outlined), 
+            icon: Icon(Icons.list_alt_rounded), 
             label: 'Tasks'
           ),
           

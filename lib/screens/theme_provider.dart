@@ -5,7 +5,7 @@ class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
   bool _useCustomTheme = false;
   bool _showAlerts = true;
-  Color _appBarColor = Colors.blue;
+  Color _appBarColor = Colors.amber;
   Color _bottomNavigationColor = Colors.white;
   Color _backgroundColor = Colors.white;
   Color _cardColor = Colors.white;
